@@ -18,11 +18,10 @@ FROM node:18-alpine as build
 
 WORKDIR /app/ui/src
 
-
 COPY . .
 
-RUN npm i
-RUN npm run build
+RUN yarn --frozen-lockfile
+RUN yarn build
 
 # -- RELEASE --
 FROM nginx:stable-alpine as release
