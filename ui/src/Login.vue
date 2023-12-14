@@ -67,7 +67,8 @@ export default {
   data: () => ({
     userName: '',
     password: '',
-    e2: true
+    e2: true,
+    modifyAnyThing: true
   }),
   components: {
     Footers
