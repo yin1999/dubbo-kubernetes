@@ -40,7 +40,6 @@ on:
 jobs:
   update-ui:
     runs-on: ubuntu-latest
-    if: github.repository == 'apache/dubbo-kubernetes'
     steps:
       - uses: actions/checkout@v4
 
