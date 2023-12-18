@@ -1,0 +1,1 @@
+import"./iconify-wCvKUeN0.js";import{b7 as a,bA as n,bd as o,bz as s,bD as r,bi as c,bc as _}from"./index-Bi20jNbl.js";const i={class:"__container_home_index"},l=a({__name:"index",setup(m){const e=n().name;return(t,p)=>(_(),o("div",i,[s("h1",null,r(t.$t(c(e))),1)]))}});export{l as default};
