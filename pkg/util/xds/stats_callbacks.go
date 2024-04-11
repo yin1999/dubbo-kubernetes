@@ -165,3 +165,15 @@ func (s *statsCallbacks) OnStreamDeltaRequest(_ int64, request DeltaDiscoveryReq
 func (s *statsCallbacks) OnStreamDeltaResponse(_ int64, _ DeltaDiscoveryRequest, response DeltaDiscoveryResponse) {
 	s.responsesSentMetric.WithLabelValues(response.GetTypeUrl()).Inc()
 }
+
+type NoopStatsCallbacks struct {
+	NoopCallbacks
+}
+
+var _ StatsCallbacks = &NoopStatsCallbacks{}
+
+func (n *NoopStatsCallbacks) ConfigReadyForDelivery(_ string) {
+}
+
+func (n *NoopStatsCallbacks) DiscardConfig(_ string) {
+}
