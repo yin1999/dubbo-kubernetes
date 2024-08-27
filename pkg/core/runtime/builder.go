@@ -20,37 +20,40 @@ package runtime
 import (
 	"context"
 	"fmt"
-	"github.com/apache/dubbo-kubernetes/pkg/envoy/admin"
-	"github.com/apache/dubbo-kubernetes/pkg/metrics"
-	"github.com/apache/dubbo-kubernetes/pkg/xds/secrets"
 	"os"
 	"sync"
 	"time"
-)
 
-import (
 	"dubbo.apache.org/dubbo-go/v3/config_center"
 	"dubbo.apache.org/dubbo-go/v3/metadata/report"
+	"github.com/apache/dubbo-kubernetes/pkg/envoy/admin"
+	"github.com/apache/dubbo-kubernetes/pkg/metrics"
+	"github.com/apache/dubbo-kubernetes/pkg/xds/secrets"
+
 	dubboRegistry "dubbo.apache.org/dubbo-go/v3/registry"
-
 	"github.com/pkg/errors"
-)
 
-import (
 	api_server "github.com/apache/dubbo-kubernetes/pkg/api-server/customization"
+
 	dubbo_cp "github.com/apache/dubbo-kubernetes/pkg/config/app/dubbo-cp"
 	"github.com/apache/dubbo-kubernetes/pkg/core"
+
 	core_ca "github.com/apache/dubbo-kubernetes/pkg/core/ca"
+
 	config_manager "github.com/apache/dubbo-kubernetes/pkg/core/config/manager"
 	"github.com/apache/dubbo-kubernetes/pkg/core/datasource"
 	"github.com/apache/dubbo-kubernetes/pkg/core/dns/lookup"
 	"github.com/apache/dubbo-kubernetes/pkg/core/governance"
 	"github.com/apache/dubbo-kubernetes/pkg/core/reg_client"
 	"github.com/apache/dubbo-kubernetes/pkg/core/registry"
+
 	core_manager "github.com/apache/dubbo-kubernetes/pkg/core/resources/manager"
+
 	core_store "github.com/apache/dubbo-kubernetes/pkg/core/resources/store"
 	"github.com/apache/dubbo-kubernetes/pkg/core/runtime/component"
+
 	dds_context "github.com/apache/dubbo-kubernetes/pkg/dds/context"
+
 	dp_server "github.com/apache/dubbo-kubernetes/pkg/dp-server/server"
 	"github.com/apache/dubbo-kubernetes/pkg/events"
 	"github.com/apache/dubbo-kubernetes/pkg/xds/cache/mesh"
@@ -83,6 +86,7 @@ type BuilderContext interface {
 	ResourceValidators() ResourceValidators
 	AppRegCtx() *registry.ApplicationContext
 	InfRegCtx() *registry.InterfaceContext
+	Access() Access
 }
 
 var _ BuilderContext = &Builder{}
@@ -105,6 +109,7 @@ type Builder struct {
 	erf                  events.EventBus
 	apim                 api_server.APIManager
 	cam                  core_ca.Managers
+	acc                  Access
 	dsl                  datasource.Loader
 	dps                  *dp_server.DpServer
 	registryCenter       dubboRegistry.Registry
@@ -123,6 +128,10 @@ type Builder struct {
 	appRegCtx            *registry.ApplicationContext
 	infRegCtx            *registry.InterfaceContext
 	*runtimeInfo
+}
+
+func (b *Builder) Access() Access {
+	return b.acc
 }
 
 func (b *Builder) CAProvider() secrets.CaProvider {
@@ -175,6 +184,11 @@ func (b *Builder) WithTransactions(txs core_store.Transactions) *Builder {
 
 func (b *Builder) WithEnvoyAdminClient(eac admin.EnvoyAdminClient) *Builder {
 	b.eac = eac
+	return b
+}
+
+func (b *Builder) WithAccess(acc Access) *Builder {
+	b.acc = acc
 	return b
 }
 
@@ -349,6 +363,9 @@ func (b *Builder) Build() (Runtime, error) {
 	}
 	if b.meshCache == nil {
 		return nil, errors.Errorf("MeshCache has not been configured")
+	}
+	if b.acc == (Access{}) {
+		return nil, errors.Errorf("Access has not been configured")
 	}
 
 	return &runtime{
