@@ -20,6 +20,7 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"github.com/apache/dubbo-kubernetes/pkg/envoy/admin"
 	"github.com/apache/dubbo-kubernetes/pkg/metrics"
 	"github.com/apache/dubbo-kubernetes/pkg/xds/secrets"
 	"os"
@@ -97,6 +98,7 @@ type Builder struct {
 	rom                  core_manager.ReadOnlyResourceManager
 	ext                  context.Context
 	meshCache            *mesh.Cache
+	eac                  admin.EnvoyAdminClient
 	lif                  lookup.LookupIPFunc
 	configm              config_manager.ConfigManager
 	leadInfo             component.LeaderInfo
@@ -168,6 +170,11 @@ func (b *Builder) WithResourceStore(rs core_store.CustomizableResourceStore) *Bu
 
 func (b *Builder) WithTransactions(txs core_store.Transactions) *Builder {
 	b.txs = txs
+	return b
+}
+
+func (b *Builder) WithEnvoyAdminClient(eac admin.EnvoyAdminClient) *Builder {
+	b.eac = eac
 	return b
 }
 
