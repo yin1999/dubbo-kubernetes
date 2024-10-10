@@ -367,6 +367,9 @@ func (b *Builder) Build() (Runtime, error) {
 	if b.acc == (Access{}) {
 		return nil, errors.Errorf("Access has not been configured")
 	}
+	if b.cap == nil {
+		return nil, errors.Errorf("CaProvider has not been configured")
+	}
 
 	return &runtime{
 		RuntimeInfo: b.runtimeInfo,
@@ -392,6 +395,7 @@ func (b *Builder) Build() (Runtime, error) {
 			appCtx:               b.appCtx,
 			meshCache:            b.meshCache,
 			regClient:            b.regClient,
+			cap:                  b.cap,
 		},
 		Manager: b.cm,
 	}, nil
